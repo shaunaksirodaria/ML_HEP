@@ -51,7 +51,7 @@ void Ana::Loop()
        std::cout<<"NRechits:"<<NRechits<<std::endl;
        std::cout<<"rechit_iu:rechit_iv"<<rechit_iu->at(i)<<":"<<rechit_iv->at(i)<<std::endl;
        std::cout<<"rechit_layer:"<<rechit_layer->at(i)<<std::endl;
-       R7[rechit_layer->at(i)]+=rechit_energy->at(i); // Problem in this line
+       R7[rechit_layer->at(i)]+=rechit_energy->at(i);
       }
       std::cout<<"R7:"<<R7[rechit_layer->at(i)]<<std::endl;
       hR7->Fill(R7[rechit_layer->at(i)]);
