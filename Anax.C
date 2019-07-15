@@ -1,5 +1,5 @@
-#define Ana_cxx
-#include "Ana.h"
+#define Anax_cxx
+#include "Anax.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -7,7 +7,8 @@
 #include <cmath>
 
 using namespace std;
-void Ana::Loop()
+
+void Anax::Loop()
 {
 //   In a ROOT session, you can do:
 //      root> .L Ana.C
