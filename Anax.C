@@ -74,9 +74,7 @@ void Anax::Loop()
 	 }
        R17[rechit_layer->at(i)]=R1[rechit_layer->at(i)]/R7[rechit_layer->at(i)];
      }
-     // std::cout<<"Event number = "<<jentry+1<<std::endl;
      for(int j=0;j<41;j++){
-       // std::cout<<"for layer: "<<j+1<<", R1 = "<<R1[j]<<" , R7 = "<<R7[j]<<" and R17 = "<<R17[j]<<std::endl;
        hR1[j]->Fill(R1[j]);
        hR7[j]->Fill(R7[j]);
        hR17[j]->Fill(R17[j]);
