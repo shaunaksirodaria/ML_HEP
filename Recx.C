@@ -53,12 +53,16 @@ void Recx::Loop()
       
       for(unsigned int i=0;i<NRechits;i++) {
 	  hRecx[rechit_layer->at(i)]->Fill(rechit_x->at(i),rechit_y->at(i), rechit_energy->at(i));
-	  //}
       }
     }  
     TFile *layerwise_position=TFile::Open("layerwise_position.root","recreate");
     for(int j=0;j<number_of_layers;j++){
       hRecx[j]->Write();
+      TCanvas *c[j];
+      c[j]=new TCanvas(Form("c%i",j),Form("c%i",j),800,1000);
+      c[j]->cd();
+      hRecx[j]->Draw("COLZ");
+      c[j]->SaveAs(Form("Layer_%i_hRecx.png",j));
     }
     layerwise_position->Close();
 }
