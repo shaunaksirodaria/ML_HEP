@@ -1,5 +1,6 @@
 #define Recx_cxx
 #include "Recx.h"
+#include <TH1.h>
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -35,7 +36,7 @@ void Recx::Loop()
    char *Layer_hRecx=new char[number_of_layers];
    for(int j=0;j<number_of_layers;j++){
      sprintf(Layer_hRecx,"Layer_%d_hRecx",j);
-     hRecx[j] = new TH2F(Layer_hRecx,Layer_hRecx,50,-9.0,9.0,50,-9.0,9.0);
+     hRecx[j] = new TH2F(Layer_hRecx,Layer_hRecx,100,-9.0,9.0,50,-9.0,9.0);
    }
 
    if (fChain == 0) return;
@@ -54,7 +55,7 @@ void Recx::Loop()
       for(unsigned int i=0;i<NRechits;i++) {
 	  hRecx[rechit_layer->at(i)]->Fill(rechit_x->at(i),rechit_y->at(i), rechit_energy->at(i));
       }
-    }  
+   }  
     TFile *layerwise_position=TFile::Open("layerwise_position.root","recreate");
     for(int j=0;j<number_of_layers;j++){
       hRecx[j]->Write();
@@ -62,6 +63,12 @@ void Recx::Loop()
       c[j]=new TCanvas(Form("c%i",j),Form("c%i",j),800,1000);
       c[j]->cd();
       hRecx[j]->Draw("COLZ");
+      Int_t MaxBin=hRecx[j]->GetMaximumBin();
+      Int_t x,y,z;
+      hRecx[j]->GetBinXYZ(MaxBin,x,y,z);
+      double xc=hRecx[j]->GetXaxis()->GetBinCenter(x);
+      double yc=hRecx[j]->GetYaxis()->GetBinCenter(y);
+      printf("The bin in layer %d having the maximum value is (%d,%d) at (%f,%f)",j,x,y,xc,yc);
       c[j]->SaveAs(Form("Layer_%i_hRecx.png",j));
     }
     layerwise_position->Close();
