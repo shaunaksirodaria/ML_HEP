@@ -112,7 +112,7 @@ void hits::Loop()
       if(abs(rechit_iu->at(i)-uc)<2 && abs(rechit_iv->at(i)-vc)<2){ 
         R7[rechit_layer->at(i)]+=rechit_energy->at(i);
       }
-      if(rechit_iu->at(i)==0 && rechit_iv->at(i)==0){
+      if(rechit_iu->at(i)==uc && rechit_iv->at(i)==vc){
         R1[rechit_layer->at(i)]+=rechit_energy->at(i);
       }
       if(abs(rechit_iu->at(i)-uc)<3 && abs(rechit_iv->at(i)-vc)<3){ 
