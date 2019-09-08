@@ -64,7 +64,7 @@ void Ana::Loop()
      std::vector<float> R17(number_of_layers, default_value);
 
      for(unsigned int i=0;i<NRechits;i++){
-       if(abs(rechit_iu->at(i))<2 && abs(rechit_iv->at(i))<2 && (rechit_iu->at(i)*rechit_iv->at(i))>=0){ 
+       if(abs(rechit_iu->at(i))<2 && abs(rechit_iv->at(i))<2 && (rechit_iu->at(i)*rechit_iv->at(i))<=0){ 
 	R7[rechit_layer->at(i)]+=rechit_energy->at(i);
        }
        if((rechit_iu->at(i))==0 && (rechit_iv->at(i))==0){ 
