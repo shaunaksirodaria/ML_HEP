@@ -47,7 +47,7 @@ void Ana::Loop()
      nb = fChain->GetEntry(jentry);   nbytes += nb;
      std::vector<float> R7(number_of_layers, default_value);
      for(unsigned int i=0;i<NRechits;i++){
-       if(abs(rechit_iu->at(i))<2 && abs(rechit_iv->at(i))<2 && (rechit_iu->at(i)*rechit_iv->at(i))>=0){ 
+       if(abs(rechit_iu->at(i))<2 && abs(rechit_iv->at(i))<2 && (rechit_iu->at(i)*rechit_iv->at(i))<=0){ 
        std::cout<<"NRechits:"<<NRechits<<std::endl;
        std::cout<<"rechit_iu:rechit_iv"<<rechit_iu->at(i)<<":"<<rechit_iv->at(i)<<std::endl;
        std::cout<<"rechit_layer:"<<rechit_layer->at(i)<<std::endl;
