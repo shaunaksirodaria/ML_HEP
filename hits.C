@@ -5,7 +5,9 @@
 #include <TCanvas.h>
 #include <TObject.h>
 #include <TProfile.h>
+#include <iostream>
 
+using namespace std;
 void hits::Loop()
 {
 //   In a ROOT session, you can do:
@@ -63,78 +65,69 @@ void hits::Loop()
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //nentries=10;
+   //   nentries=50;
    Long64_t nbytes = 0, nb = 0;
    float  default_value = 0.;
    short uc=0;
    short vc=0;
+   std::vector<float> R1(number_of_layers, default_value);
+   std::vector<float> R7(number_of_layers, default_value);
+   std::vector<float> R17(number_of_layers, default_value);
+   std::vector<float> R19(number_of_layers, default_value);
+   std::vector<float> R719(number_of_layers, default_value);
+
+   TFile *layerwise_R=new TFile("layerwise_R.root","recreate");
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      Long64_t ientry = LoadTree(jentry);
      if (ientry < 0) break;
      nb = fChain->GetEntry(jentry);   nbytes += nb;
      std::vector<short> Recx(number_of_layers, default_value);
-
-
      for(unsigned int i=0;i<NRechits;i++){
        hRecx[rechit_layer->at(i)]->Fill(rechit_iu->at(i),rechit_iv->at(i), rechit_energy->at(i));
      }
-  }   
-  TFile *layerwise_R=new TFile("layerwise_R.root","recreate");
-  
+     for(int j=0;j<number_of_layers;j++){
+       Int_t MaxBin=hRecx[j]->GetMaximumBin();
+       Int_t x,y,z;
+       hRecx[j]->GetBinXYZ(MaxBin,x,y,z);
+       short uc=hRecx[j]->GetXaxis()->GetBinCenter(x);
+       short vc=hRecx[j]->GetYaxis()->GetBinCenter(y);
+           
+       //looping with new centres
+
+       for(unsigned int i=0;i<NRechits;i++){
+         if(rechit_layer->at(i) != j) continue; 
+	       if( rechit_iu->at(i)>=(uc-1) && rechit_iu->at(i)<=(uc+1) && rechit_iv->at(i)>=(vc-1) && rechit_iv->at(i)<=(vc+1) &&
+		(rechit_iu->at(i) + rechit_iv->at(i)) >= uc+vc-1 && (rechit_iu->at(i) + rechit_iv->at(i)) <= uc+vc+1){
+	        R7[rechit_layer->at(i)]+=rechit_energy->at(i);
+           }
+	       if(rechit_iu->at(i)==uc && rechit_iv->at(i)==vc){
+	        R1[rechit_layer->at(i)]+=rechit_energy->at(i);
+	        }
+	       if( rechit_iu->at(i)>=(uc-2) && rechit_iu->at(i)<=(uc+2) && rechit_iv->at(i)>=(vc-2) && rechit_iv->at(i)<=(vc+2) &&
+                (rechit_iu->at(i) + rechit_iv->at(i)) >= uc+vc-2 && (rechit_iu->at(i) + rechit_iv->at(i)) <= uc+vc+2){ 
+	        R19[rechit_layer->at(i)]+=rechit_energy->at(i);
+	        }
+	      hprof->Fill(rechit_layer->at(i),rechit_energy->at(i));
+         }
+	       R17[j]=R1[j]/R7[j];
+          R719[j]=R7[j]/R19[j];
+          hR1[j]->Fill(R1[j]);
+          hR19[j]->Fill(R19[j]);
+          hR7[j]->Fill(R7[j]);
+          hR719[j]->Fill(R719[j]);
+          hR17[j]->Fill(R17[j]);
+        }
+  }//event loop ends
+  hprof->Write();
+  hprof->SaveAs("LongProf.png");
   for(int j=0;j<number_of_layers;j++){
     hRecx[j]->Write();
-    
     TCanvas *a[j];
     a[j]=new TCanvas(Form("b%i",j),Form("b%i",j),800,1000);
     a[j]->cd();
     hRecx[j]->Draw("COLZ");
-    Int_t MaxBin=hRecx[j]->GetMaximumBin();
-    Int_t x,y,z;
-    hRecx[j]->GetBinXYZ(MaxBin,x,y,z);
-    short uc=hRecx[j]->GetXaxis()->GetBinCenter(x);
-    short vc=hRecx[j]->GetYaxis()->GetBinCenter(y);
-    printf("The bin in layer %d having the maximum value is (%d,%d) at (%i,%i)",j,x,y,uc,vc);    
     a[j]->SaveAs(Form("Layer_%i_hRecx.png",j));
-  }
 
-//second event loop for looping with new centres
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
-    std::vector<float> R1(number_of_layers, default_value);
-    std::vector<float> R7(number_of_layers, default_value);
-    std::vector<float> R17(number_of_layers, default_value);
-    std::vector<float> R19(number_of_layers, default_value);
-    std::vector<float> R719(number_of_layers, default_value);
-
-    for(unsigned int i=0;i<NRechits;i++){
-      if(abs(rechit_iu->at(i)-uc)<2 && abs(rechit_iv->at(i)-vc)<2){ 
-        R7[rechit_layer->at(i)]+=rechit_energy->at(i);
-      }
-      if(rechit_iu->at(i)==uc && rechit_iv->at(i)==vc){
-        R1[rechit_layer->at(i)]+=rechit_energy->at(i);
-      }
-      if(abs(rechit_iu->at(i)-uc)<3 && abs(rechit_iv->at(i)-vc)<3){ 
-        R19[rechit_layer->at(i)]+=rechit_energy->at(i);
-      }
-      hprof->Fill(rechit_layer->at(i),rechit_energy->at(i));
-    }
-
-    for(int j=0;j<number_of_layers;j++){    
-      R17[j]=R1[j]/R7[j];
-      R719[j]=R7[j]/R19[j];
-      hR1[j]->Fill(R1[j]);
-      hR19[j]->Fill(R19[j]);
-      hR7[j]->Fill(R7[j]);
-      hR719[j]->Fill(R719[j]);
-      hR17[j]->Fill(R17[j]);
-       
-    }
-  }
-  hprof->Write();
-  hprof->SaveAs("LongProf.png");
-  for(int j=0;j<number_of_layers;j++){
     hR1[j]->Write();
     hR7[j]->Write();
     hR19[j]->Write();
@@ -147,7 +140,7 @@ void hits::Loop()
     c[j]->cd();
     hR7[j]->Draw("E");
     c[j]->SaveAs(Form("Layer_%i_hR7.png",j));
-
+    
     TCanvas *b[j];
     b[j]=new TCanvas(Form("b%i",j),Form("b%i",j),800,1000);
     b[j]->SetLogy(); b[j]->SetLogx();
@@ -175,6 +168,7 @@ void hits::Loop()
     g[j]->cd();
     hR719[j]->Draw("E");
     g[j]->SaveAs(Form("Layer_%i_hR719.png",j));
-  }
+  
+   }
 layerwise_R->Close();
 }
