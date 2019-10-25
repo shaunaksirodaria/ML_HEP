@@ -1,3 +1,6 @@
+Author:- Thorben Quast
+https://github.com/ThorbenQuast
+
 import time
 
 import argparse
